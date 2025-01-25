@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Mapping Application</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        .controls {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 16px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #357abd;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button id="startScout">Start Scouting</button>
+        <button id="clearMap">Clear Map</button>
+    </div>
+    <div id="map"></div>
+
+    <!-- Load Google Maps JavaScript API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+    
+    <!-- Load our application code -->
+    <script type="module">
+        import { StreetMapper, MapService } from './script.js';
+
+        let map;
+        let streetMapper;
+        let directionsService;
+        let bounds = {
+            tx: 0, // top x
+            ty: 0, // top y
+            bx: 0, // bottom x
+            by: 0  // bottom y
+        };
+
+        // Initialize the map
+        function initMap() {
+            // Create the map centered on a default location
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 40.7128, lng: -74.0060 }, // Default to NYC
+                zoom: 13,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            });
+
+            // Initialize services
+            directionsService = new google.maps.DirectionsService();
+            const mapService = new MapService(map, directionsService);
+            streetMapper = new StreetMapper(mapService);
+
+            // Add click listeners for setting bounds
+            let boundsMarkers = [];
+            map.addListener('click', (event) => {
+                if (boundsMarkers.length < 2) {
+                    const marker = new google.maps.Marker({
+                        position: event.latLng,
+                        map: map
+                    });
+                    boundsMarkers.push(marker);
+
+                    // When we have two markers, set the bounds
+                    if (boundsMarkers.length === 2) {
+                        bounds = {
+                            tx: Math.min(boundsMarkers[0].getPosition().lat(), boundsMarkers[1].getPosition().lat()),
+                            ty: Math.max(boundsMarkers[0].getPosition().lng(), boundsMarkers[1].getPosition().lng()),
+                            bx: Math.max(boundsMarkers[0].getPosition().lat(), boundsMarkers[1].getPosition().lat()),
+                            by: Math.min(boundsMarkers[0].getPosition().lng(), boundsMarkers[1].getPosition().lng())
+                        };
+                    }
+                }
+            });
+        }
+
+        // Add button event listeners
+        document.getElementById('startScout').addEventListener('click', async () => {
+            if (!bounds.tx || !bounds.ty || !bounds.bx || !bounds.by) {
+                alert('Please set bounds by clicking two points on the map first');
+                return;
+            }
+            try {
+                const points = await streetMapper.scout(bounds);
+                streetMapper.processStreet(points);
+            } catch (error) {
+                console.error('Error during scouting:', error);
+                alert('An error occurred during scouting. Please try again.');
+            }
+        });
+
+        document.getElementById('clearMap').addEventListener('click', () => {
+            location.reload();
+        });
+
+        // Initialize the map when the page loads
+        window.initMap = initMap;
+        window.addEventListener('load', initMap);
+    </script>
+</body>
+</html>
