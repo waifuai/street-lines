@@ -19,7 +19,7 @@ class TestStreetLinesCLI(unittest.TestCase):
     def test_calculate_parking_rectangles_invalid_input(self):
         # Test with invalid bounding box coordinates (e.g., swapped lat/lon)
         with self.assertRaises(ValueError):
-            calculate_parking_rectangles(0.0, 1.0, 2.0, 3.0)
+            calculate_parking_rectangles("invalid", 1.0, 2.0, 3.0)
 
 
 if __name__ == '__main__':
