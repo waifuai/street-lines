@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Lines - Parking Rectangle Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        .success {
+            border-left-color: #28a745;
+            background-color: #d4edda;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+        }
+        .coordinates-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🅿️ Street Lines - Parking Rectangle Calculator</h1>
+
+        <div class="coordinates-grid">
+            <div class="form-group">
+                <label for="latTopLeft">Latitude (Top Left):</label>
+                <input type="number" id="latTopLeft" step="any" value="0.0" placeholder="e.g., 40.7128">
+            </div>
+            <div class="form-group">
+                <label for="lonTopLeft">Longitude (Top Left):</label>
+                <input type="number" id="lonTopLeft" step="any" value="1.0" placeholder="e.g., -74.0060">
+            </div>
+            <div class="form-group">
+                <label for="latBottomRight">Latitude (Bottom Right):</label>
+                <input type="number" id="latBottomRight" step="any" value="2.0" placeholder="e.g., 40.7589">
+            </div>
+            <div class="form-group">
+                <label for="lonBottomRight">Longitude (Bottom Right):</label>
+                <input type="number" id="lonBottomRight" step="any" value="3.0" placeholder="e.g., -73.9851">
+            </div>
+        </div>
+
+        <button id="calculateBtn" onclick="calculateRectangles()">Calculate Parking Rectangles</button>
+
+        <div id="result" class="result" style="display: none;">
+            <h3>Result:</h3>
+            <pre id="resultContent"></pre>
+        </div>
+    </div>
+
+    <script>
+        async function calculateRectangles() {
+            const btn = document.getElementById('calculateBtn');
+            const result = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+
+            // Get input values
+            const latTopLeft = document.getElementById('latTopLeft').value;
+            const lonTopLeft = document.getElementById('lonTopLeft').value;
+            const latBottomRight = document.getElementById('latBottomRight').value;
+            const lonBottomRight = document.getElementById('lonBottomRight').value;
+
+            // Disable button and show loading
+            btn.disabled = true;
+            btn.innerHTML = 'Calculating...';
+
+            result.style.display = 'block';
+            result.className = 'result loading';
+            resultContent.textContent = 'Calculating parking rectangles...';
+
+            try {
+                // Build query string
+                const params = new URLSearchParams({
+                    latitude_top_left: latTopLeft,
+                    longitude_top_left: lonTopLeft,
+                    latitude_bottom_right: latBottomRight,
+                    longitude_bottom_right: lonBottomRight
+                });
+
+                // For local testing, you might need to adjust the URL
+                const apiUrl = `/api/index.py?${params}`;
+
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.success) {
+                    result.className = 'result success';
+                    resultContent.textContent = JSON.stringify(data.data, null, 2);
+                } else {
+                    result.className = 'result error';
+                    resultContent.textContent = `Error: ${data.error}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                resultContent.textContent = `Network Error: ${error.message}`;
+            } finally {
+                // Re-enable button
+                btn.disabled = false;
+                btn.innerHTML = 'Calculate Parking Rectangles';
+            }
+        }
+
+        // Auto-calculate on page load for testing
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                calculateRectangles();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,7 +1,6 @@
-# Constants
 import argparse
 
-from street_lines_cli import calculate_parking_rectangles
+from .street_lines_cli import calculate_parking_rectangles
 
 def main():
     parser = argparse.ArgumentParser()
