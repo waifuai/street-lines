@@ -1,3 +1,11 @@
+"""
+Unit tests for the Street Lines parking rectangle calculation algorithm.
+
+This module contains comprehensive tests for the calculate_parking_rectangles
+function, including validation of input parameters, JSON output structure,
+and error handling. These tests ensure the algorithm produces correct results
+and handles edge cases appropriately.
+"""
 import unittest
 import json
 from src.street_lines_cli import calculate_parking_rectangles

@@ -1,3 +1,11 @@
+"""
+Core algorithm for calculating parking rectangles from bounding box coordinates.
+
+This module implements the mathematical algorithm for generating parking rectangles
+that are aligned with street orientations. It converts geographic coordinates to
+a local Cartesian system, applies rotation transformations, and normalizes
+coordinates back to geographic space to produce accurate parking rectangle geometries.
+"""
 import json
 import math
 import random

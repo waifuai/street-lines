@@ -1,3 +1,10 @@
+"""
+Command-line interface for the Street Lines parking rectangle calculator.
+
+This module provides the main entry point for running the parking rectangle
+calculation algorithm from the command line. It accepts bounding box coordinates
+as arguments and outputs the calculated parking rectangles as JSON.
+"""
 import argparse
 
 from .street_lines_cli import calculate_parking_rectangles

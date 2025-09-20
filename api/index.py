@@ -1,3 +1,10 @@
+"""
+Vercel serverless function for calculating parking rectangles.
+
+This module provides an API endpoint that accepts bounding box coordinates
+and returns parking rectangles calculated using the street lines algorithm.
+The endpoint is designed to work with the Street Lines web dashboard.
+"""
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
